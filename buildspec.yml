@@ -1,0 +1,34 @@
+version: 0.2
+
+phases:
+  install:
+    commands:
+      - apt-get update
+      - apt install jq yarn
+      - node -v
+      - yarn version
+  pre_build:
+    commands:
+      - echo Logging in to Amazon ECR...
+      - FOLDER_NAME=$(echo $(date '+%Y%m%d%H%M%S'))
+      - NEW_ORIGIN_PATH="/$FOLDER_NAME"
+      - KEEP_RELEASES=3
+
+  build:
+    commands:
+      - echo Build started on `date`
+      - echo Building JS .....
+      - envsubst < ./codebuild-template/environment-template.yaml > .env
+      - yarn install
+      - yarn build
+      - echo Copying /build to S3 ....
+      - aws s3 cp --recursive ./build s3://$S3_DEPLOY_BUCKET/$FOLDER_NAME
+
+  post_build:
+    commands:
+      - echo Remove old releases folder
+      - chmod +x ./codebuild-template/remove-old-releases.sh
+      - ./codebuild-template/remove-old-releases.sh
+artifacts:
+  files:
+    - '**/*'
