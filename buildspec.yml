@@ -1,5 +1,9 @@
 version: 0.2
 
+env:
+  parameter-store:
+    REACT_APP_HELLO_REACT: "/$ENV/REACT_APP_HELLO_REACT"
+
 phases:
   install:
     commands:
