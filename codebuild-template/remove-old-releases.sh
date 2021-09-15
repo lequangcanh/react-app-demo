@@ -6,6 +6,11 @@ if [ $remove_folder_count > 0 ]
 then
   for i in `seq 0 $(expr $remove_folder_count - 1)`
   do
+    if [ ${releases_folder[i]} == $FOLDER_NAME/ ]
+    then
+      echo "Keep folder: s3://$S3_DEPLOY_BUCKET/${releases_folder[i]}"
+      continue
+    fi
     aws s3 rm s3://$S3_DEPLOY_BUCKET/${releases_folder[i]} --recursive
     echo "Removed folder: s3://$S3_DEPLOY_BUCKET/${releases_folder[i]}"
   done
